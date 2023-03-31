@@ -2,6 +2,7 @@ import io
 import json
 
 import pytest
+import requests
 
 import openai
 from openai import error
@@ -86,3 +87,11 @@ def test_timeout_does_not_error():
         model="ada",
         request_timeout=10,
     )
+
+
+def test_user_passed_session():
+    with requests.Session() as session:
+        openai.session.set(session)
+
+        completion = openai.Completion.create(prompt="test", model="ada")
+        assert completion

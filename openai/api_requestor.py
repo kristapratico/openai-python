@@ -511,7 +511,10 @@ class APIRequestor:
         )
 
         if not hasattr(_thread_context, "session"):
-            _thread_context.session = _make_session()
+            session = openai.session.get()
+            if not session:
+                session = _make_session()
+            _thread_context.session = session
         try:
             result = _thread_context.session.request(
                 method,
