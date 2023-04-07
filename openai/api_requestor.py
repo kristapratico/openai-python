@@ -296,6 +296,7 @@ class APIRequestor:
     ) -> Tuple[Union[OpenAIResponse, AsyncGenerator[OpenAIResponse, None]], bool, str]:
         ctx = aiohttp_session()
         session = await ctx.__aenter__()
+        print(f"entering async session: {session}")
         try:
             result = await self.arequest_raw(
                 method.lower(),
@@ -511,7 +512,11 @@ class APIRequestor:
         )
 
         if not hasattr(_thread_context, "session"):
-            _thread_context.session = _make_session()
+            if openai.session_factory:
+                _thread_context.session = openai.session_factory()
+            else:
+                _thread_context.session = _make_session() 
+        print(_thread_context.session)
         try:
             result = _thread_context.session.request(
                 method,
@@ -690,6 +695,7 @@ class APIRequestor:
 async def aiohttp_session() -> AsyncIterator[aiohttp.ClientSession]:
     user_set_session = openai.aiosession.get()
     if user_set_session:
+        print(user_set_session)
         yield user_set_session
     else:
         async with aiohttp.ClientSession() as session:
