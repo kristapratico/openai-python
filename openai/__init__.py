@@ -4,7 +4,7 @@
 
 import os
 from contextvars import ContextVar
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Union, Callable, TYPE_CHECKING
 
 from openai.api_resources import (
     Audio,
@@ -25,6 +25,7 @@ from openai.api_resources import (
 from openai.error import APIError, InvalidRequestError, OpenAIError
 
 if TYPE_CHECKING:
+    import requests
     from aiohttp import ClientSession
 
 api_key = os.environ.get("OPENAI_API_KEY")
@@ -46,6 +47,10 @@ enable_telemetry = False  # Ignored; the telemetry feature was removed.
 ca_bundle_path = None  # No longer used, feature was removed
 debug = False
 log = None  # Set to either 'debug' or 'info', controls console logging
+
+requestssession: Optional[
+    Union["requests.Session", Callable[[], "requests.Session"]]
+] = None # Provide a requests.Session or Session factory.
 
 aiosession: ContextVar[Optional["ClientSession"]] = ContextVar(
     "aiohttp-session", default=None
