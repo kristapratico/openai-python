@@ -362,7 +362,11 @@ class APIRequestor:
                 error_data.get("message"), rbody, rcode, resp, rheaders
             )
         elif rcode in [400, 404, 415]:
-            return error.InvalidRequestError(
+            error_type = error.InvalidRequestError
+            if error_data.get("code") == "content_filter":
+                error_type = error.ContentPolicyError
+
+            return error_type(
                 error_data.get("message"),
                 error_data.get("param"),
                 error_data.get("code"),
