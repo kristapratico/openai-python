@@ -191,10 +191,11 @@ class ContentPolicyError(InvalidRequestError):
             json_body=json_body,
             headers=headers
         )
-        self.content_filter_result = json_body["error"]["innererror"]["content_filter_result"]
+        self.innererror = self.json_body["error"].get("innererror", {})
+        self.content_filter_result = self.innererror.get("content_filter_result")
 
 
     def __str__(self):
-        if self.json_body["error"].get("innererror"):
-            return f"{self._message}\nInner error: {json.dumps(self.json_body['error'].get('innererror'), indent=4)}"
+        if self.innererror:
+            return f"{self._message}\nInner error: {json.dumps(self.innererror, indent=4)}"
         return self._message
