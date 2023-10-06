@@ -1,3 +1,4 @@
+import json
 import openai
 
 
@@ -167,3 +168,34 @@ class SignatureVerificationError(OpenAIError):
             self.sig_header,
             self.http_body,
         )
+
+
+class ContentPolicyError(InvalidRequestError):
+
+    def __init__(
+        self,
+        message,
+        param,
+        code=None,
+        http_body=None,
+        http_status=None,
+        json_body=None,
+        headers=None,
+    ):
+        super().__init__(
+            message,
+            param,
+            code=code,
+            http_body=http_body,
+            http_status=http_status,
+            json_body=json_body,
+            headers=headers
+        )
+        self.innererror = self.json_body["error"].get("innererror", {})
+        self.content_filter_result = self.innererror.get("content_filter_result")
+
+
+    def __str__(self):
+        if self.innererror:
+            return f"{self._message}\nInner error: {json.dumps(self.innererror, indent=4)}"
+        return self._message
