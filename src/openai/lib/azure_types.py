@@ -37,6 +37,7 @@ __all__ = [
     "OnYourDataVectorizationSourceType",
     "AzureCognitiveSearchQueryType",
     "ElasticsearchQueryType",
+    "AzureChatExtensionConfiguration"
 ]
 
 AzureChatExtensionType = Literal["AzureCognitiveSearch", "AzureMLIndex", "AzureCosmosDB", "Elasticsearch", "Pinecone"]
@@ -52,7 +53,13 @@ OnYourDataAuthenticationType = Literal[
 OnYourDataVectorizationSourceType = Literal["Endpoint", "DeploymentName", "ModelId"]
 AzureCognitiveSearchQueryType = Literal["simple", "semantic", "vector", "vectorSimpleHybrid", "vectorSemanticHybrid"]
 ElasticsearchQueryType = Literal["simple", "vector"]
-
+AzureChatExtensionConfiguration = Union[
+    "AzureCognitiveSearchChatExtensionConfiguration",
+    "AzureCosmosDBChatExtensionConfiguration",
+    "AzureMachineLearningIndexChatExtensionConfiguration",
+    "ElasticsearchChatExtensionConfiguration",
+    "PineconeChatExtensionConfiguration",
+]
 
 class AzureChatEnhancementConfiguration(TypedDict, total=False):
 
