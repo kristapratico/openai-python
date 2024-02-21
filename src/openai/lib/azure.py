@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import os
 import inspect
-from typing import Any, Union, Mapping, TypeVar, Callable, Awaitable, overload
-from typing_extensions import Self, override
+import functools
+
+from typing import Any, Union, Mapping, TypeVar, Callable, Awaitable, overload, Iterable
+from typing_extensions import Self, override, ParamSpec
 
 import httpx
 
@@ -14,6 +16,13 @@ from .._models import FinalRequestOptions
 from .._streaming import Stream, AsyncStream
 from .._exceptions import OpenAIError
 from .._base_client import DEFAULT_MAX_RETRIES, BaseClient
+from .._compat import cached_property
+from ..resources.chat import Chat, Completions
+from .azure_types import AzureChatExtensionConfiguration, AzureChatEnhancementConfiguration
+
+P = ParamSpec("P")
+T = TypeVar("T")
+
 
 _deployments_endpoints = set(
     [
@@ -40,6 +49,44 @@ _DefaultStreamT = TypeVar("_DefaultStreamT", bound=Union[Stream[Any], AsyncStrea
 API_KEY_SENTINEL = "".join(["<", "missing API key", ">"])
 
 
+def with_azure_options_wrapper(func: Callable[P, T], extras: Any) -> Callable[P, T]:
+
+    @functools.wraps(func)
+    def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
+        kwargs.update({"extra_body": extras})
+        return func(*args, **kwargs)
+
+    return wrapped
+
+
+class CompletionsWithAzureOptions(Completions):
+    def __init__(self, completions: AzureCompletions, **extras: Any) -> None:
+        self._completions = completions
+
+        self.create = with_azure_options_wrapper(
+            completions.create, extras
+        )
+
+
+class AzureCompletions(Completions):
+
+    def with_azure_options(
+            self,
+            *,
+            data_sources: Iterable[AzureChatExtensionConfiguration] | None = None,
+            enhancements: AzureChatEnhancementConfiguration | None = None
+    ) -> CompletionsWithAzureOptions:
+        return CompletionsWithAzureOptions(self, data_sources=data_sources, enhancements=enhancements)
+
+
+class AzureChat(Chat):
+
+    @override  # type: ignore
+    @cached_property
+    def completions(self) -> AzureCompletions:
+        return AzureCompletions(self._client)
+
+
 class MutuallyExclusiveAuthError(OpenAIError):
     def __init__(self) -> None:
         super().__init__(
@@ -62,6 +109,8 @@ class BaseAzureClient(BaseClient[_HttpxClientT, _DefaultStreamT]):
 
 
 class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
+    chat: AzureChat
+
     @overload
     def __init__(
         self,
@@ -216,6 +265,7 @@ class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
         self._api_version = api_version
         self._azure_ad_token = azure_ad_token
         self._azure_ad_token_provider = azure_ad_token_provider
+        self.chat = AzureChat(self)  # type: ignore
 
     @override
     def copy(
