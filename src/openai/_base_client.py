@@ -87,6 +87,7 @@ from ._exceptions import (
     APIResponseValidationError,
 )
 from ._legacy_response import LegacyAPIResponse
+from ._tracing import on_request, on_response
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -798,6 +799,7 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             transport=transport,
             limits=limits,
             follow_redirects=True,
+            event_hooks={"request": [on_request], "response": [on_response]},
         )
 
     def is_closed(self) -> bool:

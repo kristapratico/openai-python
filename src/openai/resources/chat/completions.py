@@ -25,6 +25,7 @@ from ...types.chat import (
 from ..._base_client import (
     make_request_options,
 )
+from ..._tracing import traceable
 
 __all__ = ["Completions", "AsyncCompletions"]
 
@@ -608,6 +609,7 @@ class Completions(SyncAPIResource):
         """
         ...
 
+    @traceable
     @required_args(["messages", "model"], ["messages", "model", "stream"])
     def create(
         self,
