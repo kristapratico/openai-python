@@ -1,10 +1,12 @@
 import os
 import openai
+import dotenv
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
 
+dotenv.load_dotenv()
 
 trace.set_tracer_provider(TracerProvider())
 tracer = trace.get_tracer(__name__)

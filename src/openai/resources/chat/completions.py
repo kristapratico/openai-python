@@ -609,7 +609,7 @@ class Completions(SyncAPIResource):
         """
         ...
 
-    @traceable
+    @traceable(span_name="chat.completions.create")
     @required_args(["messages", "model"], ["messages", "model", "stream"])
     def create(
         self,
