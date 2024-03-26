@@ -87,7 +87,7 @@ from ._exceptions import (
     APIResponseValidationError,
 )
 from ._legacy_response import LegacyAPIResponse
-from ._tracing import on_request, on_response, traceable
+from ._tracing import on_request, on_response
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -999,7 +999,6 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             stream_cls=stream_cls,
         )
 
-    @traceable(span_name="retry")
     def _retry_request(
         self,
         options: FinalRequestOptions,
