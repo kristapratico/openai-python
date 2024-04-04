@@ -87,11 +87,10 @@ from ._exceptions import (
     APIResponseValidationError,
 )
 from ._legacy_response import LegacyAPIResponse
-from ._tracing import on_request, on_response
+from ._extras import has_tracing_enabled
+from ._tracing import on_request, on_response, TRACING_EVENT_HOOKS
 
 log: logging.Logger = logging.getLogger(__name__)
-
-TRACING_EVENT_HOOKS = {"request": [on_request], "response": [on_response]}
 
 # TODO: make base page type vars covariant
 SyncPageT = TypeVar("SyncPageT", bound="BaseSyncPage[Any]")
@@ -794,7 +793,7 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             _strict_response_validation=_strict_response_validation,
         )
 
-        if http_client is not None:
+        if has_tracing_enabled() and http_client is not None:
             if http_client.event_hooks:
                 http_client.event_hooks["request"].append(on_request)
                 http_client.event_hooks["response"].append(on_response)
@@ -809,7 +808,7 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             transport=transport,
             limits=limits,
             follow_redirects=True,
-            event_hooks=TRACING_EVENT_HOOKS,
+            event_hooks=TRACING_EVENT_HOOKS if has_tracing_enabled() else None,
         )
 
     def is_closed(self) -> bool:
