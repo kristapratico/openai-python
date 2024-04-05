@@ -68,8 +68,7 @@ def traceable(
             tracer = trace.get_tracer(__name__)
             with tracer.start_as_current_span(span_name) as llm_span:
                 add_request_body_attributes(llm_span, kwargs)
-                with tracer.start_as_current_span("httpx"):
-                    result = func(*args, **kwargs)
+                result = func(*args, **kwargs)
                 add_response_body_attributes(llm_span, result)
                 return result
 
