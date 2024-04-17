@@ -1,4 +1,4 @@
-# File generated from our OpenAPI spec by Stainless.
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
 
@@ -196,19 +196,24 @@ class TestThreads:
             )
 
     @parametrize
-    def test_method_create_and_run(self, client: OpenAI) -> None:
+    def test_method_create_and_run_overload_1(self, client: OpenAI) -> None:
         thread = client.beta.threads.create_and_run(
             assistant_id="string",
         )
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    def test_method_create_and_run_with_all_params(self, client: OpenAI) -> None:
+    def test_method_create_and_run_with_all_params_overload_1(self, client: OpenAI) -> None:
         thread = client.beta.threads.create_and_run(
             assistant_id="string",
             instructions="string",
+            max_completion_tokens=256,
+            max_prompt_tokens=256,
             metadata={},
-            model="string",
+            model="gpt-4-turbo",
+            response_format="none",
+            stream=False,
+            temperature=1,
             thread={
                 "messages": [
                     {
@@ -232,12 +237,17 @@ class TestThreads:
                 ],
                 "metadata": {},
             },
+            tool_choice="none",
             tools=[{"type": "code_interpreter"}, {"type": "code_interpreter"}, {"type": "code_interpreter"}],
+            truncation_strategy={
+                "type": "auto",
+                "last_messages": 1,
+            },
         )
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    def test_raw_response_create_and_run(self, client: OpenAI) -> None:
+    def test_raw_response_create_and_run_overload_1(self, client: OpenAI) -> None:
         response = client.beta.threads.with_raw_response.create_and_run(
             assistant_id="string",
         )
@@ -248,7 +258,7 @@ class TestThreads:
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    def test_streaming_response_create_and_run(self, client: OpenAI) -> None:
+    def test_streaming_response_create_and_run_overload_1(self, client: OpenAI) -> None:
         with client.beta.threads.with_streaming_response.create_and_run(
             assistant_id="string",
         ) as response:
@@ -257,6 +267,83 @@ class TestThreads:
 
             thread = response.parse()
             assert_matches_type(Run, thread, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    def test_method_create_and_run_overload_2(self, client: OpenAI) -> None:
+        thread_stream = client.beta.threads.create_and_run(
+            assistant_id="string",
+            stream=True,
+        )
+        thread_stream.response.close()
+
+    @parametrize
+    def test_method_create_and_run_with_all_params_overload_2(self, client: OpenAI) -> None:
+        thread_stream = client.beta.threads.create_and_run(
+            assistant_id="string",
+            stream=True,
+            instructions="string",
+            max_completion_tokens=256,
+            max_prompt_tokens=256,
+            metadata={},
+            model="gpt-4-turbo",
+            response_format="none",
+            temperature=1,
+            thread={
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                ],
+                "metadata": {},
+            },
+            tool_choice="none",
+            tools=[{"type": "code_interpreter"}, {"type": "code_interpreter"}, {"type": "code_interpreter"}],
+            truncation_strategy={
+                "type": "auto",
+                "last_messages": 1,
+            },
+        )
+        thread_stream.response.close()
+
+    @parametrize
+    def test_raw_response_create_and_run_overload_2(self, client: OpenAI) -> None:
+        response = client.beta.threads.with_raw_response.create_and_run(
+            assistant_id="string",
+            stream=True,
+        )
+
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        stream = response.parse()
+        stream.close()
+
+    @parametrize
+    def test_streaming_response_create_and_run_overload_2(self, client: OpenAI) -> None:
+        with client.beta.threads.with_streaming_response.create_and_run(
+            assistant_id="string",
+            stream=True,
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            stream = response.parse()
+            stream.close()
 
         assert cast(Any, response.is_closed) is True
 
@@ -439,19 +526,24 @@ class TestAsyncThreads:
             )
 
     @parametrize
-    async def test_method_create_and_run(self, async_client: AsyncOpenAI) -> None:
+    async def test_method_create_and_run_overload_1(self, async_client: AsyncOpenAI) -> None:
         thread = await async_client.beta.threads.create_and_run(
             assistant_id="string",
         )
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    async def test_method_create_and_run_with_all_params(self, async_client: AsyncOpenAI) -> None:
+    async def test_method_create_and_run_with_all_params_overload_1(self, async_client: AsyncOpenAI) -> None:
         thread = await async_client.beta.threads.create_and_run(
             assistant_id="string",
             instructions="string",
+            max_completion_tokens=256,
+            max_prompt_tokens=256,
             metadata={},
-            model="string",
+            model="gpt-4-turbo",
+            response_format="none",
+            stream=False,
+            temperature=1,
             thread={
                 "messages": [
                     {
@@ -475,12 +567,17 @@ class TestAsyncThreads:
                 ],
                 "metadata": {},
             },
+            tool_choice="none",
             tools=[{"type": "code_interpreter"}, {"type": "code_interpreter"}, {"type": "code_interpreter"}],
+            truncation_strategy={
+                "type": "auto",
+                "last_messages": 1,
+            },
         )
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    async def test_raw_response_create_and_run(self, async_client: AsyncOpenAI) -> None:
+    async def test_raw_response_create_and_run_overload_1(self, async_client: AsyncOpenAI) -> None:
         response = await async_client.beta.threads.with_raw_response.create_and_run(
             assistant_id="string",
         )
@@ -491,7 +588,7 @@ class TestAsyncThreads:
         assert_matches_type(Run, thread, path=["response"])
 
     @parametrize
-    async def test_streaming_response_create_and_run(self, async_client: AsyncOpenAI) -> None:
+    async def test_streaming_response_create_and_run_overload_1(self, async_client: AsyncOpenAI) -> None:
         async with async_client.beta.threads.with_streaming_response.create_and_run(
             assistant_id="string",
         ) as response:
@@ -500,5 +597,82 @@ class TestAsyncThreads:
 
             thread = await response.parse()
             assert_matches_type(Run, thread, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @parametrize
+    async def test_method_create_and_run_overload_2(self, async_client: AsyncOpenAI) -> None:
+        thread_stream = await async_client.beta.threads.create_and_run(
+            assistant_id="string",
+            stream=True,
+        )
+        await thread_stream.response.aclose()
+
+    @parametrize
+    async def test_method_create_and_run_with_all_params_overload_2(self, async_client: AsyncOpenAI) -> None:
+        thread_stream = await async_client.beta.threads.create_and_run(
+            assistant_id="string",
+            stream=True,
+            instructions="string",
+            max_completion_tokens=256,
+            max_prompt_tokens=256,
+            metadata={},
+            model="gpt-4-turbo",
+            response_format="none",
+            temperature=1,
+            thread={
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                    {
+                        "role": "user",
+                        "content": "x",
+                        "file_ids": ["string"],
+                        "metadata": {},
+                    },
+                ],
+                "metadata": {},
+            },
+            tool_choice="none",
+            tools=[{"type": "code_interpreter"}, {"type": "code_interpreter"}, {"type": "code_interpreter"}],
+            truncation_strategy={
+                "type": "auto",
+                "last_messages": 1,
+            },
+        )
+        await thread_stream.response.aclose()
+
+    @parametrize
+    async def test_raw_response_create_and_run_overload_2(self, async_client: AsyncOpenAI) -> None:
+        response = await async_client.beta.threads.with_raw_response.create_and_run(
+            assistant_id="string",
+            stream=True,
+        )
+
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        stream = response.parse()
+        await stream.close()
+
+    @parametrize
+    async def test_streaming_response_create_and_run_overload_2(self, async_client: AsyncOpenAI) -> None:
+        async with async_client.beta.threads.with_streaming_response.create_and_run(
+            assistant_id="string",
+            stream=True,
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            stream = await response.parse()
+            await stream.close()
 
         assert cast(Any, response.is_closed) is True

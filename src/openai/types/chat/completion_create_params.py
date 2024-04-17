@@ -1,4 +1,4 @@
-# File generated from our OpenAPI spec by Stainless.
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ from typing import Dict, List, Union, Iterable, Optional
 from typing_extensions import Literal, Required, TypedDict
 
 from ...types import shared_params
+from ..chat_model import ChatModel
 from .chat_completion_tool_param import ChatCompletionToolParam
 from .chat_completion_message_param import ChatCompletionMessageParam
 from .chat_completion_tool_choice_option_param import ChatCompletionToolChoiceOptionParam
@@ -28,30 +29,7 @@ class CompletionCreateParamsBase(TypedDict, total=False):
     [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
     """
 
-    model: Required[
-        Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ]
-    ]
+    model: Required[Union[str, ChatModel]]
     """ID of the model to use.
 
     See the
@@ -102,8 +80,7 @@ class CompletionCreateParamsBase(TypedDict, total=False):
     """Whether to return log probabilities of the output tokens or not.
 
     If true, returns the log probabilities of each output token returned in the
-    `content` of `message`. This option is currently not available on the
-    `gpt-4-vision-preview` model.
+    `content` of `message`.
     """
 
     max_tokens: Optional[int]
@@ -190,14 +167,15 @@ class CompletionCreateParamsBase(TypedDict, total=False):
     """A list of tools the model may call.
 
     Currently, only functions are supported as a tool. Use this to provide a list of
-    functions the model may generate JSON inputs for.
+    functions the model may generate JSON inputs for. A max of 128 functions are
+    supported.
     """
 
     top_logprobs: Optional[int]
     """
-    An integer between 0 and 5 specifying the number of most likely tokens to return
-    at each token position, each with an associated log probability. `logprobs` must
-    be set to `true` if this parameter is used.
+    An integer between 0 and 20 specifying the number of most likely tokens to
+    return at each token position, each with an associated log probability.
+    `logprobs` must be set to `true` if this parameter is used.
     """
 
     top_p: Optional[float]

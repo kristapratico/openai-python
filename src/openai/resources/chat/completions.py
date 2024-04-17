@@ -1,4 +1,4 @@
-# File generated from our OpenAPI spec by Stainless.
+# File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from __future__ import annotations
 
@@ -8,8 +8,13 @@ from typing_extensions import Literal
 import httpx
 
 from ... import _legacy_response
+from ...types import ChatModel
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
-from ..._utils import required_args, maybe_transform
+from ..._utils import (
+    required_args,
+    maybe_transform,
+    async_maybe_transform,
+)
 from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
 from ..._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
@@ -44,28 +49,7 @@ class Completions(SyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
         functions: Iterable[completion_create_params.Function] | NotGiven = NOT_GIVEN,
@@ -134,8 +118,7 @@ class Completions(SyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -203,11 +186,11 @@ class Completions(SyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -234,28 +217,7 @@ class Completions(SyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         stream: Literal[True],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
@@ -331,8 +293,7 @@ class Completions(SyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -393,11 +354,11 @@ class Completions(SyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -424,28 +385,7 @@ class Completions(SyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         stream: bool,
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
@@ -521,8 +461,7 @@ class Completions(SyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -583,11 +522,11 @@ class Completions(SyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -615,28 +554,7 @@ class Completions(SyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
         functions: Iterable[completion_create_params.Function] | NotGiven = NOT_GIVEN,
@@ -712,28 +630,7 @@ class AsyncCompletions(AsyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
         functions: Iterable[completion_create_params.Function] | NotGiven = NOT_GIVEN,
@@ -802,8 +699,7 @@ class AsyncCompletions(AsyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -871,11 +767,11 @@ class AsyncCompletions(AsyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -902,28 +798,7 @@ class AsyncCompletions(AsyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         stream: Literal[True],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
@@ -999,8 +874,7 @@ class AsyncCompletions(AsyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -1061,11 +935,11 @@ class AsyncCompletions(AsyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -1092,28 +966,7 @@ class AsyncCompletions(AsyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         stream: bool,
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
@@ -1189,8 +1042,7 @@ class AsyncCompletions(AsyncAPIResource):
 
           logprobs: Whether to return log probabilities of the output tokens or not. If true,
               returns the log probabilities of each output token returned in the `content` of
-              `message`. This option is currently not available on the `gpt-4-vision-preview`
-              model.
+              `message`.
 
           max_tokens: The maximum number of [tokens](/tokenizer) that can be generated in the chat
               completion.
@@ -1251,11 +1103,11 @@ class AsyncCompletions(AsyncAPIResource):
 
           tools: A list of tools the model may call. Currently, only functions are supported as a
               tool. Use this to provide a list of functions the model may generate JSON inputs
-              for.
+              for. A max of 128 functions are supported.
 
-          top_logprobs: An integer between 0 and 5 specifying the number of most likely tokens to return
-              at each token position, each with an associated log probability. `logprobs` must
-              be set to `true` if this parameter is used.
+          top_logprobs: An integer between 0 and 20 specifying the number of most likely tokens to
+              return at each token position, each with an associated log probability.
+              `logprobs` must be set to `true` if this parameter is used.
 
           top_p: An alternative to sampling with temperature, called nucleus sampling, where the
               model considers the results of the tokens with top_p probability mass. So 0.1
@@ -1282,28 +1134,7 @@ class AsyncCompletions(AsyncAPIResource):
         self,
         *,
         messages: Iterable[ChatCompletionMessageParam],
-        model: Union[
-            str,
-            Literal[
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-            ],
-        ],
+        model: Union[str, ChatModel],
         frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
         function_call: completion_create_params.FunctionCall | NotGiven = NOT_GIVEN,
         functions: Iterable[completion_create_params.Function] | NotGiven = NOT_GIVEN,
@@ -1331,7 +1162,7 @@ class AsyncCompletions(AsyncAPIResource):
     ) -> ChatCompletion | AsyncStream[ChatCompletionChunk]:
         return await self._post(
             "/chat/completions",
-            body=maybe_transform(
+            body=await async_maybe_transform(
                 {
                     "messages": messages,
                     "model": model,
