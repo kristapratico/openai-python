@@ -128,13 +128,13 @@ def _add_response_span_attributes(span: trace.Span, result: TracedModels) -> Non
 def traceable(
     *, span_name: str
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]:
-    tracer = trace.get_tracer(__name__)
-    enabled = has_tracing_enabled()
+    if has_tracing_enabled():
+        tracer = trace.get_tracer(__name__)
 
     def wrapper(func: Callable[_P, _R]) -> Callable[_P, _R]:
         @functools.wraps(func)
         def inner(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-            if not enabled:
+            if not has_tracing_enabled():
                 return func(*args, **kwargs)
 
             span = tracer.start_span(span_name, kind=trace.SpanKind.CLIENT)
