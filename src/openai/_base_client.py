@@ -823,7 +823,6 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             custom_headers=custom_headers,
             _strict_response_validation=_strict_response_validation,
         )
-
         self._client = http_client or SyncHttpxClientWrapper(
             base_url=base_url,
             # cast to a valid type because mypy doesn't understand our type narrowing
