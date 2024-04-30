@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import functools
-from typing import TypeVar, Callable, Any, Generator, Iterator, Union
+from typing import TypeVar, Callable, Any, Generator, Iterator, Union, Literal
 from typing_extensions import ParamSpec
 
 from ._extras import opentelemetry as trace, has_tracing_enabled
@@ -10,6 +10,7 @@ from .types.chat import ChatCompletion, ChatCompletionChunk
 from .types.completion import Completion
 from ._streaming import Stream
 
+TracedMessageTypes = Literal["system", "user", "assistant", "tool"]
 TracedModels = Union[ChatCompletion, Completion]
 
 _P = ParamSpec("_P")
@@ -27,28 +28,12 @@ def _add_request_chat_message_event(span: trace.Span, **kwargs: Any) -> None:
             message = message.to_dict()
         except AttributeError:
             pass
-
-        name = ""
-        data = {"role": message.get("role"), "content": message.get("content")}
-        if message.get("role") == "user":
-            name = "gen_ai.user.message"
-            if message.get("name"):
-                data.update({"name": message.get("name")})
-        elif message.get("role") == "system":
-            name = "gen_ai.system.message"
-            if message.get("name"):
-                data.update({"name": message.get("name")})
-        elif message.get("role") == "assistant":
-            name = "gen_ai.assistant.message"
-            if message.get("tool_calls"):
-                data.update({"tool_calls": message.get("tool_calls")})
-        elif message.get("role") == "tool":
-            name = "gen_ai.tool.message"
-            data.update({"tool_call_id": message.get("tool_call_id")})
-        if name and data:
+        
+        if message.get("role") in TracedMessageTypes:
+            name = f"gen_ai.{message.get('role')}.message"
             span.add_event(
                 name=name,
-                attributes={"event.data": json.dumps(data, indent=2)}
+                attributes={"event.data": json.dumps(message, indent=2)}
             )
 
 
