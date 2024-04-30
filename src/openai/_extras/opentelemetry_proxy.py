@@ -4,7 +4,7 @@ import os
 from typing import TYPE_CHECKING, Any
 from typing_extensions import override
 
-from .._utils import LazyProxy
+from .._utils import LazyProxy, coerce_boolean
 from ._common import MissingDependencyError, format_instructions
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ if not TYPE_CHECKING:
 
 
 def has_tracing_enabled() -> bool:
-    tracing = os.getenv("OPENAI_TRACE_ENABLED")
-    if tracing is None or tracing.lower() == "false":
-        return False
-    return True
+    tracing = os.getenv("OPENAI_TRACE_ENABLED", "")
+    if coerce_boolean(tracing.lower()):
+        return True
+    return False

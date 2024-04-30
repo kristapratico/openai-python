@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import functools
-from typing import TypeVar, Callable, Any, Generator, Iterator, Union, Literal
+from typing import TypeVar, Callable, Any, Generator, Iterator, Union
 from typing_extensions import ParamSpec
 
 from ._extras import opentelemetry as trace, has_tracing_enabled
@@ -10,7 +10,6 @@ from .types.chat import ChatCompletion, ChatCompletionChunk
 from .types.completion import Completion
 from ._streaming import Stream
 
-TracedMessageTypes = Literal["system", "user", "assistant", "tool"]
 TracedModels = Union[ChatCompletion, Completion]
 
 _P = ParamSpec("_P")
@@ -18,7 +17,7 @@ _R = TypeVar("_R")
 
 
 def _set_attribute(span: trace.Span, key: str, value: Any) -> None:
-    if value:
+    if value is not None:
         span.set_attribute(key, value)
 
 
@@ -28,12 +27,12 @@ def _add_request_chat_message_event(span: trace.Span, **kwargs: Any) -> None:
             message = message.to_dict()
         except AttributeError:
             pass
-        
-        if message.get("role") in TracedMessageTypes:
+
+        if message.get("role"):
             name = f"gen_ai.{message.get('role')}.message"
             span.add_event(
                 name=name,
-                attributes={"event.data": json.dumps(message, indent=2)}
+                attributes={"event.data": json.dumps(message)}
             )
 
 
@@ -47,15 +46,15 @@ def _add_request_chat_attributes(span: trace.Span, **kwargs: Any) -> None:
 
 def _add_response_chat_message_event(span: trace.Span, result: ChatCompletion) -> None:
     for choice in result.choices:
-        response = {
+        response: dict[str, Any] = {
             "message.role": choice.message.role,
             "message.content": choice.message.content,
             "finish_reason": choice.finish_reason,
             "index": choice.index,
         }
         if choice.message.tool_calls:
-            response.update({"message.tool_calls": "".join([tool.to_json() for tool in choice.message.tool_calls])})
-        span.add_event(name="gen_ai.response.message", attributes={"event.data": json.dumps(response, indent=2)})
+            response["message.tool_calls"] = [tool.to_dict() for tool in choice.message.tool_calls]
+        span.add_event(name="gen_ai.response.message", attributes={"event.data": json.dumps(response)})
 
 
 def _add_response_chat_attributes(span: trace.Span, result: ChatCompletion) -> None:
@@ -94,7 +93,7 @@ def _traceable_stream(stream_obj: Stream[ChatCompletionChunk], span: trace.Span)
                             accumulate["tool_calls"][-1]["function"]["arguments"] += tool_call.function.arguments
             yield chunk
 
-        span.add_event(name="gen_ai.response.message", attributes={"event.data": json.dumps(accumulate, indent=2)})
+        span.add_event(name="gen_ai.response.message", attributes={"event.data": json.dumps(accumulate)})
         _add_response_chat_attributes(span, chunk)
 
     finally:
