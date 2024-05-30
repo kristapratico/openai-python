@@ -117,6 +117,17 @@ def test_client_copying_override_options(client: Client) -> None:
             AzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/",
+            ),
+            "https://example.azure-api.net/PTU/",
+            "/chat/completions",
+            {"model": "my-deployment"},
+            "https://example.azure-api.net/PTU/deployments/my-deployment/chat/completions?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
                 base_url="https://example.azure-api.net/PTU/deployments/my-deployment/",
             ),
             "https://example.azure-api.net/PTU/deployments/my-deployment/",
@@ -179,6 +190,17 @@ def test_client_copying_override_options(client: Client) -> None:
             "https://example.azure-api.net/PTU/deployments/my-deployment/",
             "/chat/completions",
             {"model": "placeholder"},
+            "https://example.azure-api.net/PTU/deployments/my-deployment/chat/completions?api-version=2024-02-01"
+        ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/",
+            ),
+            "https://example.azure-api.net/PTU/",
+            "/chat/completions",
+            {"model": "my-deployment"},
             "https://example.azure-api.net/PTU/deployments/my-deployment/chat/completions?api-version=2024-02-01"
         ),
         (
