@@ -55,10 +55,20 @@ class BaseAzureClient(BaseClient[_HttpxClientT, _DefaultStreamT]):
     ) -> httpx.Request:
         if options.url in _deployments_endpoints and is_mapping(options.json_data):
             model = options.json_data.get("model")
-            if model is not None and not "/deployments" in str(self.base_url):
+            if model is not None and "/deployments/" not in str(self.base_url.path):
                 options.url = f"/deployments/{model}{options.url}"
 
         return super()._build_request(options)
+
+    @override
+    def _prepare_url(self, url: str) -> httpx.URL:
+        if "/deployments/" in str(self.base_url.path) and url not in _deployments_endpoints:
+            merge_url = httpx.URL(url)
+            if merge_url.is_relative_url:
+                merge_path = f"{self.base_url.path.rsplit('/deployments/', maxsplit=1)[0]}/{merge_url.path.lstrip('/')}"
+                return self.base_url.copy_with(path=merge_path)
+
+        return super()._prepare_url(url)
 
 
 class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
