@@ -83,6 +83,17 @@ def test_client_copying_override_options(client: Client) -> None:
                 api_version="2024-02-01",
                 api_key="example API key",
                 azure_endpoint="https://example-resource.azure.openai.com",
+            ),
+            "https://example-resource.azure.openai.com/openai/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example-resource.azure.openai.com/openai/assistants?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                azure_endpoint="https://example-resource.azure.openai.com",
                 azure_deployment="my-deployment"
             ),
             "https://example-resource.azure.openai.com/openai/deployments/my-deployment/",
@@ -106,7 +117,19 @@ def test_client_copying_override_options(client: Client) -> None:
             AzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/deployments/my-deployment/",
+                azure_endpoint="https://example-resource.azure.openai.com",
+                azure_deployment="my-deployment"
+            ),
+            "https://example-resource.azure.openai.com/openai/deployments/my-deployment/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example-resource.azure.openai.com/openai/assistants?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
             ),
             "https://example.azure-api.net/PTU/deployments/my-deployment/",
             "/chat/completions",
@@ -117,7 +140,29 @@ def test_client_copying_override_options(client: Client) -> None:
             AzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
+            ),
+            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "/models",
+            {},
+            "https://example.azure-api.net/PTU/models?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
+            ),
+            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example.azure-api.net/PTU/assistants?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU",
             ),
             "https://example.azure-api.net/PTU/",
             "/chat/completions",
@@ -128,12 +173,34 @@ def test_client_copying_override_options(client: Client) -> None:
             AzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/deployments/my-deployment/",
+                base_url="https://example.azure-api.net/PTU",
             ),
-            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "https://example.azure-api.net/PTU/",
             "/models",
             {},
             "https://example.azure-api.net/PTU/models?api-version=2024-02-01"
+        ),
+        (
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU",
+            ),
+            "https://example.azure-api.net/PTU/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example.azure-api.net/PTU/assistants?api-version=2024-02-01"
+        ),
+        (   # The below test case fails -- even before the change in _prepare_url
+            AzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/deployments",
+            ),
+            "https://example.azure-api.net/deployments/",
+            "/chat/completions",
+            {"model": "my-deployment"},
+            "https://example.azure-api.net/deployments/deployments/my-deployment/chat/completions?api-version=2024-02-01"
         ),
         (
             AsyncAzureOpenAI(
@@ -162,6 +229,17 @@ def test_client_copying_override_options(client: Client) -> None:
                 api_version="2024-02-01",
                 api_key="example API key",
                 azure_endpoint="https://example-resource.azure.openai.com",
+            ),
+            "https://example-resource.azure.openai.com/openai/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example-resource.azure.openai.com/openai/assistants?api-version=2024-02-01"
+        ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                azure_endpoint="https://example-resource.azure.openai.com",
                 azure_deployment="my-deployment"
             ),
             "https://example-resource.azure.openai.com/openai/deployments/my-deployment/",
@@ -185,7 +263,19 @@ def test_client_copying_override_options(client: Client) -> None:
             AsyncAzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/deployments/my-deployment/",
+                azure_endpoint="https://example-resource.azure.openai.com",
+                azure_deployment="my-deployment"
+            ),
+            "https://example-resource.azure.openai.com/openai/deployments/my-deployment/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example-resource.azure.openai.com/openai/assistants?api-version=2024-02-01"
+        ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
             ),
             "https://example.azure-api.net/PTU/deployments/my-deployment/",
             "/chat/completions",
@@ -196,7 +286,29 @@ def test_client_copying_override_options(client: Client) -> None:
             AsyncAzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
+            ),
+            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "/models",
+            {},
+            "https://example.azure-api.net/PTU/models?api-version=2024-02-01"
+        ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/deployments/my-deployment",
+            ),
+            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example.azure-api.net/PTU/assistants?api-version=2024-02-01"
+        ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU",
             ),
             "https://example.azure-api.net/PTU/",
             "/chat/completions",
@@ -207,13 +319,35 @@ def test_client_copying_override_options(client: Client) -> None:
             AsyncAzureOpenAI(
                 api_version="2024-02-01",
                 api_key="example API key",
-                base_url="https://example.azure-api.net/PTU/deployments/my-deployment/",
+                base_url="https://example.azure-api.net/PTU",
             ),
-            "https://example.azure-api.net/PTU/deployments/my-deployment/",
+            "https://example.azure-api.net/PTU/",
             "/models",
             {},
             "https://example.azure-api.net/PTU/models?api-version=2024-02-01"
         ),
+        (
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU",
+            ),
+            "https://example.azure-api.net/PTU/",
+            "/assistants",
+            {"model": "gpt-4"},
+            "https://example.azure-api.net/PTU/assistants?api-version=2024-02-01"
+        ),
+        (   # The below test case fails -- even before the change in _prepare_url
+            AsyncAzureOpenAI(
+                api_version="2024-02-01",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/deployments",
+            ),
+            "https://example.azure-api.net/deployments/",
+            "/chat/completions",
+            {"model": "my-deployment"},
+            "https://example.azure-api.net/deployments/deployments/my-deployment/chat/completions?api-version=2024-02-01"
+        )
     ],
 )
 def test_client_prepare_url(client: Client, base_url: str, api_path: str, json_data: dict[str, str], expected: str) -> None:
@@ -226,3 +360,48 @@ def test_client_prepare_url(client: Client, base_url: str, api_path: str, json_d
     )
     assert req.url == expected
     assert client.base_url == base_url
+
+
+def test_client_sets_base_url(client: Client) -> None:
+    client = AzureOpenAI(
+        api_version="2024-02-01",
+        api_key="example API key",
+        azure_endpoint="https://example-resource.azure.openai.com",
+        azure_deployment="my-deployment"
+    )
+    assert client.base_url == "https://example-resource.azure.openai.com/openai/deployments/my-deployment/"
+    req = client._build_request(
+        FinalRequestOptions.construct(
+            method="post",
+            url="/chat/completions",
+            json_data= {"model": "placeholder"},
+        )
+    )
+    assert req.url == "https://example-resource.azure.openai.com/openai/deployments/my-deployment/chat/completions?api-version=2024-02-01"
+    req = client._build_request(
+        FinalRequestOptions.construct(
+            method="post",
+            url="/models",
+            json_data= {},
+        )
+    )
+    assert req.url == "https://example-resource.azure.openai.com/openai/models?api-version=2024-02-01"
+
+    # user sets base_url to target different endpoint
+    client.base_url = "https://example-resource.azure.openai.com/openai/deployments/different-deployment/"
+    req = client._build_request(
+        FinalRequestOptions.construct(
+            method="post",
+            url="/chat/completions",
+            json_data= {"model": "placeholder"},
+        )
+    )
+    assert req.url == "https://example-resource.azure.openai.com/openai/deployments/different-deployment/chat/completions?api-version=2024-02-01"
+    req = client._build_request(
+        FinalRequestOptions.construct(
+            method="post",
+            url="/models",
+            json_data= {},
+        )
+    )
+    assert req.url == "https://example-resource.azure.openai.com/openai/models?api-version=2024-02-01"
