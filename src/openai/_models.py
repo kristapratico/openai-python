@@ -608,6 +608,7 @@ def _build_discriminated_union_meta(*, union: type, meta_annotations: tuple[Any,
                 if hasattr(field_info, "annotation"):
                     field_annotation = cast(type, field_info.annotation)
                 else:
+                    # pydantic==1.9
                     field_annotation = cast(type, field_info.outer_type_)
                 if field_annotation and is_literal_type(field_annotation):
                     for entry in get_args(field_annotation):
