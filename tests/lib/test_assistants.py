@@ -94,6 +94,9 @@ def test_assistants_unknown_create_tool_response() -> None:
     assert isinstance(assistant, Assistant)
     assert isinstance(assistant.tools[0], BaseTool)
     assert assistant.tools[0].type == "tool_unknown"
+    a = assistant.model_dump()
+    assert a["tools"][0]["type"] == "tool_unknown"
+    assert a["tools"][0]["unknown"] == {}
 
 
 def test_assistants_unknown_annotation_response() -> None:
@@ -120,6 +123,8 @@ def test_assistants_unknown_annotation_response() -> None:
     assert isinstance(text, Text)
     assert isinstance(text.annotations[0], BaseAnnotation)
     assert text.annotations[0].type == "unknown_citation"
+    t = text.model_dump()
+    assert t["annotations"][0]["type"] == "unknown_citation"
 
 
 def test_assistants_unknown_annotation_delta_response() -> None:
@@ -146,6 +151,8 @@ def test_assistants_unknown_annotation_delta_response() -> None:
     assert isinstance(text_delta, TextDelta)
     assert isinstance(text_delta.annotations[0], BaseDeltaAnnotation)
     assert text_delta.annotations[0].type == "unknown_citation"
+    td = text_delta.model_dump()
+    assert td["annotations"][0]["type"] == "unknown_citation"
 
 
 def test_assistants_unknown_message_content_response() -> None:
@@ -165,6 +172,8 @@ def test_assistants_unknown_message_content_response() -> None:
     assert isinstance(message, Message)
     assert isinstance(message.content[0], BaseContentBlock)
     assert message.content[0].type == "unknown_content"
+    msg = message.model_dump()
+    assert msg["content"][0]["type"] == "unknown_content"
 
 
 def test_assistants_unknown_message_content_delta_response() -> None:
@@ -176,6 +185,8 @@ def test_assistants_unknown_message_content_delta_response() -> None:
     assert isinstance(message_delta, MessageDelta)
     assert isinstance(message_delta.content[0], BaseDeltaBlock)
     assert message_delta.content[0].type == "unknown_content"
+    md = message_delta.model_dump()
+    assert md["content"][0]["type"] == "unknown_content"
 
 
 def test_assistants_unknown_tool_call_response() -> None:
@@ -203,6 +214,8 @@ def test_assistants_unknown_tool_call_response() -> None:
     assert isinstance(run_step, RunStep)
     assert isinstance(run_step.step_details.tool_calls[0], BaseToolCall)
     assert run_step.step_details.tool_calls[0].type == "tool_unknown"
+    rs = run_step.model_dump()
+    assert rs["step_details"]["tool_calls"][0]["type"] == "tool_unknown"
 
 
 def test_assistants_unknown_tool_call_delta_response() -> None:
@@ -216,3 +229,5 @@ def test_assistants_unknown_tool_call_delta_response() -> None:
     assert isinstance(run_step_delta, RunStepDelta)
     assert isinstance(run_step_delta.step_details.tool_calls[0], BaseToolCallDelta)
     assert run_step_delta.step_details.tool_calls[0].type == "tool_unknown"
+    rsd = run_step_delta.model_dump()
+    assert rsd["step_details"]["tool_calls"][0]["type"] == "tool_unknown"
