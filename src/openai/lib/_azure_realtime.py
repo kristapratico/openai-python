@@ -1,13 +1,14 @@
 import logging
 from typing import TYPE_CHECKING
+from typing_extensions import override
 
-from .._exceptions import OpenAIError
-from ..resources import beta
-from ..resources.beta import realtime
-from .._compat import cached_property
 from .._types import Query, Headers
-from ..types.websocket_connection_options import WebsocketConnectionOptions
+from .._compat import cached_property
+from ..resources import beta
+from .._exceptions import OpenAIError
 from .._base_client import _merge_mappings
+from ..resources.beta import realtime
+from ..types.websocket_connection_options import WebsocketConnectionOptions
 
 if TYPE_CHECKING:
     from .azure import AzureOpenAI, AsyncAzureOpenAI
@@ -16,6 +17,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class RealtimeConnectionManager(realtime.realtime.RealtimeConnectionManager):
+    @override
     def __enter__(self) -> realtime.realtime.RealtimeConnection:
         """
         👋 If your application doesn't work well with the context manager approach then you
@@ -40,7 +42,7 @@ class RealtimeConnectionManager(realtime.realtime.RealtimeConnectionManager):
         extra_query = {
             **self.__extra_query,
             "api-version": self.__client._api_version,
-            "deployment": self.__client._azure_deployment or self.__model
+            "deployment": self.__client._azure_deployment or self.__model,
         }
         if self.__client.api_key != "<missing API key>":
             auth_headers = {"api-key": self.__client.api_key}
@@ -81,7 +83,7 @@ class RealtimeConnectionManager(realtime.realtime.RealtimeConnectionManager):
 
 
 class Realtime(realtime.Realtime):
-
+    @override
     def connect(
         self,
         *,
@@ -109,13 +111,15 @@ class Realtime(realtime.Realtime):
             model=model,
         )
 
+
 class Beta(beta.Beta):
     @cached_property
-    def realtime(self) -> Realtime:
+    def realtime(self) -> Realtime:  # type: ignore[reportImplicitOverride]
         return Realtime(self._client)
 
 
 class AsyncRealtimeConnectionManager(realtime.realtime.AsyncRealtimeConnectionManager):
+    @override
     async def __aenter__(self) -> realtime.realtime.AsyncRealtimeConnection:
         """
         👋 If your application doesn't work well with the context manager approach then you
@@ -140,7 +144,7 @@ class AsyncRealtimeConnectionManager(realtime.realtime.AsyncRealtimeConnectionMa
         extra_query = {
             **self.__extra_query,
             "api-version": self.__client._api_version,
-            "deployment": self.__client._azure_deployment or self.__model
+            "deployment": self.__client._azure_deployment or self.__model,
         }
         if self.__client.api_key != "<missing API key>":
             auth_headers = {"api-key": self.__client.api_key}
@@ -181,7 +185,7 @@ class AsyncRealtimeConnectionManager(realtime.realtime.AsyncRealtimeConnectionMa
 
 
 class AsyncRealtime(realtime.AsyncRealtime):
-
+    @override
     def connect(
         self,
         *,
@@ -209,7 +213,8 @@ class AsyncRealtime(realtime.AsyncRealtime):
             model=model,
         )
 
+
 class AsyncBeta(beta.AsyncBeta):
     @cached_property
-    def realtime(self) -> AsyncRealtime:
+    def realtime(self) -> AsyncRealtime:  # type: ignore[reportImplicitOverride]
         return AsyncRealtime(self._client)

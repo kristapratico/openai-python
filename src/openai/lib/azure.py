@@ -17,7 +17,6 @@ from .._exceptions import OpenAIError
 from .._base_client import DEFAULT_MAX_RETRIES, BaseClient
 from ._azure_realtime import Beta, AsyncBeta
 
-
 _deployments_endpoints = set(
     [
         "/completions",
@@ -229,7 +228,7 @@ class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
         self._azure_ad_token = azure_ad_token
         self._azure_ad_token_provider = azure_ad_token_provider
         self._azure_deployment = azure_deployment
-        self.beta = Beta(self)
+        self.beta = Beta(self)  # type: ignore[reportIncompatibleVariableOverride]
 
     @override
     def copy(
@@ -480,7 +479,7 @@ class AsyncAzureOpenAI(BaseAzureClient[httpx.AsyncClient, AsyncStream[Any]], Asy
         self._azure_ad_token = azure_ad_token
         self._azure_ad_token_provider = azure_ad_token_provider
         self._azure_deployment = azure_deployment
-        self.beta = AsyncBeta(self)
+        self.beta = AsyncBeta(self)  # type: ignore[reportIncompatibleVariableOverride]
 
     @override
     def copy(
