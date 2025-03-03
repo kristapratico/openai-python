@@ -297,6 +297,43 @@ class TestAzureLogging:
             {"model": "deployment-body"},
             "https://example-resource.azure.openai.com/openai/deployments/deployments/chat/completions?api-version=2024-02-01",
         ),
+        # AzureOpenAI: realtime/sessions endpoint
+        (
+            AzureOpenAI(
+                api_version="2025-02-01-preview",
+                api_key="example API key",
+                azure_endpoint="https://example-resource.azure.openai.com",
+            ),
+            "https://example-resource.azure.openai.com/openai/",
+            "/realtime/sessions",
+            {"model": "deployment-body"},
+            "https://example-resource.azure.openai.com/openai/deployments/deployment-body/realtime/sessions?api-version=2025-02-01-preview",
+        ),
+        # AzureOpenAI: realtime/sessions endpoint with azure_deployment
+        (
+            AzureOpenAI(
+                api_version="2025-02-01-preview",
+                api_key="example API key",
+                azure_endpoint="https://example-resource.azure.openai.com",
+                azure_deployment="deployment-client",
+            ),
+            "https://example-resource.azure.openai.com/openai/deployments/deployment-client/",
+            "/realtime/sessions",
+            {"model": "deployment-body"},
+            "https://example-resource.azure.openai.com/openai/deployments/deployment-client/realtime/sessions?api-version=2025-02-01-preview",
+        ),
+        # AzureOpenAI: realtime/sessions endpoint with base_url
+        (
+            AzureOpenAI(
+                api_version="2025-02-01-preview",
+                api_key="example API key",
+                base_url="https://example.azure-api.net/PTU/",
+            ),
+            "https://example.azure-api.net/PTU/",
+            "/realtime/sessions",
+            {"model": "deployment-body"},
+            "https://example.azure-api.net/PTU/deployments/deployment-body/realtime/sessions?api-version=2025-02-01-preview",
+        ),
         # AzureOpenAI: base_url and azure_deployment specified; ignored b/c not supported
         (
             AzureOpenAI(  # type: ignore
