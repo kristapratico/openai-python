@@ -854,3 +854,54 @@ def test_field_named_cls() -> None:
     m = construct_type(value={"cls": "foo"}, type_=Model)
     assert isinstance(m, Model)
     assert isinstance(m.cls, str)
+
+
+@pytest.mark.skipif(not PYDANTIC_V2, reason="__pydantic_core_schema__ is not supported in Pydantic v1")
+def test_discriminated_unions_with_definitions_schema() -> None:
+    class A(BaseModel):
+        type: Literal["a"]
+
+        data: bool
+
+    class B(BaseModel):
+        type: Literal["b"]
+
+        data: Union[A, str]
+
+    class ModelA(BaseModel):
+        type: Literal["modelA"]
+
+        data: int
+
+    class ModelB(BaseModel):
+        type: Literal["modelB"]
+
+        required: str
+
+        data: list[Union[A, B]]
+
+    ma = construct_type(value={"type": "modelA", "data": 1}, type_=ModelA)
+    assert isinstance(ma, ModelA)
+    schema_a = ma.__pydantic_core_schema__
+    assert schema_a["type"] == "model"
+
+    mb = construct_type(
+        value={
+            "type": "modelB",
+            "required": "foo",
+            "data": [{"type": "a", "data": True}, {"type": "b", "data": "foo"}],
+        },
+        type_=ModelB,
+    )
+    assert isinstance(mb, ModelB)
+    schema_b = mb.__pydantic_core_schema__
+    assert schema_b["type"] == "definitions"
+    model_schema = schema_b["schema"]
+    assert model_schema["type"] == "model"
+
+    m = construct_type(
+        value={"type": "modelB", "data": [{"type": "a", "data": True}, {"type": "b", "data": "foo"}]},
+        type_=cast(Any, Annotated[Union[ModelA, ModelB], PropertyInfo(discriminator="type")]),
+    )
+
+    assert isinstance(m, ModelB)
