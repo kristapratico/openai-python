@@ -33,7 +33,7 @@ from ._exceptions import (
     InvalidWebhookSignatureError,
     ContentFilterFinishReasonError,
 )
-from ._base_client import DefaultHttpxClient, DefaultAioHttpClient, DefaultAsyncHttpxClient
+from ._base_client import DefaultHttpxClient, DefaultAioHttpClient, DefaultAsyncHttpxClient, AuthProvider
 from ._utils._logs import setup_logging as _setup_logging
 from ._legacy_response import HttpxBinaryResponseContent as HttpxBinaryResponseContent
 
@@ -136,6 +136,8 @@ default_headers: _t.Mapping[str, str] | None = None
 default_query: _t.Mapping[str, object] | None = None
 
 http_client: _httpx.Client | None = None
+
+auth_provider: AuthProvider | None = None
 
 _ApiType = _te.Literal["openai", "azure"]
 
@@ -265,6 +267,17 @@ class _ModuleClient(OpenAI):
 
         http_client = value
 
+    @property  # type: ignore
+    @override
+    def _auth_provider(self) -> AuthProvider | None:
+        return auth_provider
+
+    @_auth_provider.setter  # type: ignore
+    def _auth_provider(self, value: AuthProvider | None) -> None:  # type: ignore
+        global auth_provider
+
+        auth_provider = value
+
 
 class _AzureModuleClient(_ModuleClient, AzureOpenAI):  # type: ignore
     ...
@@ -356,6 +369,7 @@ def _load_client() -> OpenAI:  # type: ignore[reportUnusedFunction]
             max_retries=max_retries,
             default_headers=default_headers,
             default_query=default_query,
+            auth_provider=auth_provider,
             http_client=http_client,
         )
         return _client

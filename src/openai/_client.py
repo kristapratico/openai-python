@@ -32,6 +32,8 @@ from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
+    AuthProvider,
+    AsyncAuthProvider,
 )
 
 if TYPE_CHECKING:
@@ -106,6 +108,7 @@ class OpenAI(SyncAPIClient):
         # We provide a `DefaultHttpxClient` class that you can pass to retain the default values we use for `limits`, `timeout` & `follow_redirects`.
         # See the [httpx documentation](https://www.python-httpx.org/api/#client) for more details.
         http_client: httpx.Client | None = None,
+        auth_provider: AuthProvider | None = None,
         # Enable or disable schema validation for data returned by the API.
         # When enabled an error APIResponseValidationError is raised
         # if the API responds with invalid data for the expected schema.
@@ -126,9 +129,9 @@ class OpenAI(SyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("OPENAI_API_KEY")
-        if api_key is None:
+        if api_key is None and auth_provider is None:
             raise OpenAIError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable"
+                "The api_key or auth_provider client option must be set either by passing api_key or auth_provider to the client or by setting the OPENAI_API_KEY environment variable"
             )
         self.api_key = api_key
 
@@ -159,6 +162,7 @@ class OpenAI(SyncAPIClient):
             http_client=http_client,
             custom_headers=default_headers,
             custom_query=default_query,
+            auth_provider=auth_provider,
             _strict_response_validation=_strict_response_validation,
         )
 
@@ -425,6 +429,7 @@ class AsyncOpenAI(AsyncAPIClient):
         # We provide a `DefaultAsyncHttpxClient` class that you can pass to retain the default values we use for `limits`, `timeout` & `follow_redirects`.
         # See the [httpx documentation](https://www.python-httpx.org/api/#asyncclient) for more details.
         http_client: httpx.AsyncClient | None = None,
+        auth_provider: AsyncAuthProvider | None = None,
         # Enable or disable schema validation for data returned by the API.
         # When enabled an error APIResponseValidationError is raised
         # if the API responds with invalid data for the expected schema.
@@ -445,9 +450,9 @@ class AsyncOpenAI(AsyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("OPENAI_API_KEY")
-        if api_key is None:
+        if api_key is None and auth_provider is None:
             raise OpenAIError(
-                "The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable"
+                "The api_key or auth_provider client option must be set either by passing api_key or auth_provider to the client or by setting the OPENAI_API_KEY environment variable"
             )
         self.api_key = api_key
 
@@ -478,6 +483,7 @@ class AsyncOpenAI(AsyncAPIClient):
             http_client=http_client,
             custom_headers=default_headers,
             custom_query=default_query,
+            auth_provider=auth_provider,
             _strict_response_validation=_strict_response_validation,
         )
 

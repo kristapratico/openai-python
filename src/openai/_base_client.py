@@ -28,6 +28,8 @@ from typing import (
     AsyncIterator,
     cast,
     overload,
+    Callable,
+    Awaitable,
 )
 from typing_extensions import Literal, override, get_origin
 
@@ -356,6 +358,8 @@ class BaseAsyncPage(BasePage[_T], Generic[_T]):
 
 _HttpxClientT = TypeVar("_HttpxClientT", bound=Union[httpx.Client, httpx.AsyncClient])
 _DefaultStreamT = TypeVar("_DefaultStreamT", bound=Union[Stream[Any], AsyncStream[Any]])
+AuthProvider = Callable[[], str]
+AsyncAuthProvider = Callable[[], "str | Awaitable[str]"]
 
 
 class BaseClient(Generic[_HttpxClientT, _DefaultStreamT]):
@@ -821,6 +825,7 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
         http_client: httpx.Client | None = None,
         custom_headers: Mapping[str, str] | None = None,
         custom_query: Mapping[str, object] | None = None,
+        auth_provider: AuthProvider | None = None,
         _strict_response_validation: bool,
     ) -> None:
         if not is_given(timeout):
@@ -856,6 +861,7 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
             # cast to a valid type because mypy doesn't understand our type narrowing
             timeout=cast(Timeout, timeout),
         )
+        self._auth_provider = auth_provider
 
     def is_closed(self) -> bool:
         return self._client.is_closed
@@ -881,11 +887,36 @@ class SyncAPIClient(BaseClient[httpx.Client, Stream[Any]]):
     ) -> None:
         self.close()
 
+    def _get_auth(self) -> str | None:
+        if self._auth_provider is not None:
+            token = self._auth_provider()
+            if not token or not isinstance(token, str):  # pyright: ignore[reportUnnecessaryIsInstance]
+                raise ValueError(
+                    f"Expected `auth_provider` argument to return a string but it returned {token}",
+                )
+            return token
+
+        return None
+
     def _prepare_options(
         self,
         options: FinalRequestOptions,  # noqa: ARG002
     ) -> FinalRequestOptions:
         """Hook for mutating the given options"""
+        if self._auth_provider:
+            headers: dict[str, str | Omit] = {**options.headers} if is_given(options.headers) else {}
+
+            options = model_copy(options)
+            options.headers = headers
+
+            token = self._get_auth()
+            if token is not None:
+                if headers.get("Authorization") is None:
+                    headers["Authorization"] = f"Bearer {token}"
+            else:
+                # should never be hit
+                raise ValueError("Unable to handle auth")
+
         return options
 
     def _prepare_request(
@@ -1367,6 +1398,7 @@ class AsyncAPIClient(BaseClient[httpx.AsyncClient, AsyncStream[Any]]):
         http_client: httpx.AsyncClient | None = None,
         custom_headers: Mapping[str, str] | None = None,
         custom_query: Mapping[str, object] | None = None,
+        auth_provider: AsyncAuthProvider | None = None,
     ) -> None:
         if not is_given(timeout):
             # if the user passed in a custom http client with a non-default
@@ -1401,6 +1433,7 @@ class AsyncAPIClient(BaseClient[httpx.AsyncClient, AsyncStream[Any]]):
             # cast to a valid type because mypy doesn't understand our type narrowing
             timeout=cast(Timeout, timeout),
         )
+        self._auth_provider = auth_provider
 
     def is_closed(self) -> bool:
         return self._client.is_closed
@@ -1423,11 +1456,38 @@ class AsyncAPIClient(BaseClient[httpx.AsyncClient, AsyncStream[Any]]):
     ) -> None:
         await self.close()
 
+    async def _get_auth(self) -> str | None:
+        if self._auth_provider is not None:
+            token = self._auth_provider()
+            if inspect.isawaitable(token):
+                token = await token
+            if not token or not isinstance(cast(Any, token), str):
+                raise ValueError(
+                    f"Expected `auth_provider` argument to return a string but it returned {token}",
+                )
+            return str(token)
+
+        return None
+
     async def _prepare_options(
         self,
         options: FinalRequestOptions,  # noqa: ARG002
     ) -> FinalRequestOptions:
         """Hook for mutating the given options"""
+        if self._auth_provider:
+            headers: dict[str, str | Omit] = {**options.headers} if is_given(options.headers) else {}
+
+            options = model_copy(options)
+            options.headers = headers
+
+            token = await self._get_auth()
+            if token is not None:
+                if headers.get("Authorization") is None:
+                    headers["Authorization"] = f"Bearer {token}"
+            else:
+                # should never be hit
+                raise ValueError("Unable to handle auth")
+
         return options
 
     async def _prepare_request(

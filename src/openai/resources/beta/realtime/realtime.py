@@ -359,6 +359,8 @@ class AsyncRealtimeConnectionManager:
 
         extra_query = self.__extra_query
         auth_headers = self.__client.auth_headers
+        if self.__client._auth_provider:
+            auth_headers = {"Authorization": f"Bearer {await self.__client._get_auth()}"}
         if is_async_azure_client(self.__client):
             url, auth_headers = await self.__client._configure_realtime(self.__model, extra_query)
         else:
@@ -373,20 +375,23 @@ class AsyncRealtimeConnectionManager:
         if self.__websocket_connection_options:
             log.debug("Connection options: %s", self.__websocket_connection_options)
 
-        self.__connection = AsyncRealtimeConnection(
-            await connect(
-                str(url),
-                user_agent_header=self.__client.user_agent,
-                additional_headers=_merge_mappings(
-                    {
-                        **auth_headers,
-                        "OpenAI-Beta": "realtime=v1",
-                    },
-                    self.__extra_headers,
-                ),
-                **self.__websocket_connection_options,
+        try:
+            self.__connection = AsyncRealtimeConnection(
+                await connect(
+                    str(url),
+                    user_agent_header=self.__client.user_agent,
+                    additional_headers=_merge_mappings(
+                        {
+                            **auth_headers,
+                            "OpenAI-Beta": "realtime=v1",
+                        },
+                        self.__extra_headers,
+                    ),
+                    **self.__websocket_connection_options,
+                )
             )
-        )
+        except Exception as e:
+            print()
 
         return self.__connection
 
@@ -541,6 +546,8 @@ class RealtimeConnectionManager:
 
         extra_query = self.__extra_query
         auth_headers = self.__client.auth_headers
+        if self.__client._auth_provider:
+            auth_headers = {**auth_headers, "Authorization": f"Bearer {self.__client._get_auth()}"}
         if is_azure_client(self.__client):
             url, auth_headers = self.__client._configure_realtime(self.__model, extra_query)
         else:
