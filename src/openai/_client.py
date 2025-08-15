@@ -15,8 +15,10 @@ from ._types import (
     Omit,
     Timeout,
     NotGiven,
+    TokenAuth,
     Transport,
     ProxiesTypes,
+    AsyncTokenAuth,
     RequestOptions,
 )
 from ._utils import (
@@ -36,7 +38,6 @@ from ._base_client import (
 )
 
 if TYPE_CHECKING:
-    from .lib.azure import AzureAuth, AsyncAzureAuth
     from .resources import (
         beta,
         chat,
@@ -95,7 +96,7 @@ class OpenAI(SyncAPIClient):
         self,
         *,
         api_key: str | None = None,
-        auth: AzureAuth | None = None,
+        auth: TokenAuth | None = None,
         organization: str | None = None,
         project: str | None = None,
         webhook_secret: str | None = None,
@@ -321,7 +322,7 @@ class OpenAI(SyncAPIClient):
         self,
         *,
         api_key: str | None = None,
-        auth: AzureAuth | None = None,
+        auth: TokenAuth | None = None,
         organization: str | None = None,
         project: str | None = None,
         webhook_secret: str | None = None,
@@ -435,7 +436,7 @@ class AsyncOpenAI(AsyncAPIClient):
         self,
         *,
         api_key: str | None = None,
-        auth: AsyncAzureAuth | None = None,
+        auth: AsyncTokenAuth | None = None,
         organization: str | None = None,
         project: str | None = None,
         webhook_secret: str | None = None,
@@ -664,7 +665,7 @@ class AsyncOpenAI(AsyncAPIClient):
         self,
         *,
         api_key: str | None = None,
-        auth: AsyncAzureAuth | None = None,
+        auth: AsyncTokenAuth | None = None,
         organization: str | None = None,
         project: str | None = None,
         webhook_secret: str | None = None,

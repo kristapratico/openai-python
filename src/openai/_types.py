@@ -219,3 +219,11 @@ class _GenericAlias(Protocol):
 class HttpxSendArgs(TypedDict, total=False):
     auth: httpx.Auth
     follow_redirects: bool
+
+
+class TokenAuth(Protocol):
+    def get_token(self) -> str: ...
+
+
+class AsyncTokenAuth(Protocol):
+    async def get_token(self) -> str: ...

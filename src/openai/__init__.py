@@ -7,7 +7,7 @@ import typing as _t
 from typing_extensions import override
 
 from . import types
-from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
+from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, TokenAuth, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, OpenAI, Stream, Timeout, Transport, AsyncClient, AsyncOpenAI, AsyncStream, RequestOptions
 from ._models import BaseModel
@@ -124,7 +124,7 @@ from ._base_client import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES
 
 api_key: str | None = None
 
-auth: AzureAuth | None = None
+auth: TokenAuth | None = None
 
 organization: str | None = None
 
@@ -174,11 +174,11 @@ class _ModuleClient(OpenAI):
 
     @property  # type: ignore
     @override
-    def auth(self) -> AzureAuth | None:
+    def auth(self) -> TokenAuth | None:
         return auth
 
     @auth.setter  # type: ignore
-    def auth(self, value: AzureAuth | None) -> None:  # type: ignore
+    def auth(self, value: TokenAuth | None) -> None:  # type: ignore
         global auth
 
         auth = value
