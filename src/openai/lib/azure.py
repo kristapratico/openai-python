@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import inspect
-from typing import Any, Union, Mapping, TypeVar, Callable, Awaitable, cast, overload
+from typing import TYPE_CHECKING, Any, Union, Mapping, TypeVar, Callable, Awaitable, cast, overload
 from typing_extensions import Self, override
 
 import httpx
@@ -40,6 +40,107 @@ _DefaultStreamT = TypeVar("_DefaultStreamT", bound=Union[Stream[Any], AsyncStrea
 # as we don't want to make the `api_key` in the main client Optional
 # and Azure AD tokens may be retrieved on a per-request basis
 API_KEY_SENTINEL = "".join(["<", "missing API key", ">"])
+
+
+if TYPE_CHECKING:
+    from azure.core.credentials import TokenCredential
+    from azure.core.credentials_async import AsyncTokenCredential
+
+
+AzureTokenProvider = Callable[[], str]
+AsyncAzureTokenProvider = Callable[[], Awaitable[str]]
+
+
+class AzureAuth:
+    @overload
+    def __init__(self, *, token_provider: AzureTokenProvider) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        *,
+        credential: TokenCredential,
+        scopes: list[str] = ["https://cognitiveservices.azure.com/.default"],
+    ) -> None: ...
+
+    def __init__(
+        self,
+        *,
+        token_provider: AzureTokenProvider | None = None,
+        credential: TokenCredential | None = None,
+        scopes: list[str] = ["https://cognitiveservices.azure.com/.default"],
+    ) -> None:
+        if token_provider is not None and credential is not None:
+            raise ValueError("The `token_provider` and `credential` arguments are mutually exclusive.")
+        if token_provider is None and credential is None:
+            raise ValueError("One of `token_provider` or `credential` must be provided to AzureAuth.")
+        self.token_provider = token_provider
+        self.credential = credential
+        self.scopes = scopes
+
+    def get_token(self) -> str:
+        if self.token_provider is not None:
+            token = self.token_provider()
+            return token
+
+        if self.credential is not None:
+            try:
+                from azure.identity import get_bearer_token_provider
+            except ImportError as err:
+                raise ImportError(
+                    "azure-identity library is not installed. Please install it to use AzureAuth."
+                ) from err
+            token_provider = get_bearer_token_provider(self.credential, *self.scopes)
+            token = token_provider()
+            return token
+
+        raise ValueError("Unexpected values provided to AzureAuth. Unable to get token.")
+
+
+class AsyncAzureAuth:
+    @overload
+    def __init__(self, *, token_provider: AsyncAzureTokenProvider) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        *,
+        credential: AsyncTokenCredential,
+        scopes: list[str] = ["https://cognitiveservices.azure.com/.default"],
+    ) -> None: ...
+
+    def __init__(
+        self,
+        *,
+        token_provider: AsyncAzureTokenProvider | None = None,
+        credential: AsyncTokenCredential | None = None,
+        scopes: list[str] = ["https://cognitiveservices.azure.com/.default"],
+    ) -> None:
+        if token_provider is not None and credential is not None:
+            raise ValueError("The `token_provider` and `credential` arguments are mutually exclusive.")
+        if token_provider is None and credential is None:
+            raise ValueError("One of `token_provider` or `credential` must be provided to AsyncAzureAuth.")
+        self.token_provider = token_provider
+        self.credential = credential
+        self.scopes = scopes
+
+    async def get_token(self) -> str:
+        if self.token_provider is not None:
+            token = await self.token_provider()
+            return token
+
+        if self.credential is not None:
+            try:
+                from azure.identity.aio import get_bearer_token_provider
+            except ImportError as err:
+                raise ImportError(
+                    "azure-identity library is not installed. Please install it to use AsyncAzureAuth."
+                ) from err
+            token_provider = get_bearer_token_provider(self.credential, *self.scopes)
+            token = await token_provider()
+            return token
+
+        raise ValueError("Unexpected values provided to AsyncAzureAuth. Unable to get token.")
 
 
 class MutuallyExclusiveAuthError(OpenAIError):
@@ -255,7 +356,7 @@ class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
         self._azure_endpoint = httpx.URL(azure_endpoint) if azure_endpoint else None
 
     @override
-    def copy(
+    def copy(  # type: ignore
         self,
         *,
         api_key: str | None = None,
@@ -301,7 +402,7 @@ class AzureOpenAI(BaseAzureClient[httpx.Client, Stream[Any]], OpenAI):
             },
         )
 
-    with_options = copy
+    with_options = copy  # type: ignore
 
     def _get_azure_ad_token(self) -> str | None:
         if self._azure_ad_token is not None:
@@ -536,7 +637,7 @@ class AsyncAzureOpenAI(BaseAzureClient[httpx.AsyncClient, AsyncStream[Any]], Asy
         self._azure_endpoint = httpx.URL(azure_endpoint) if azure_endpoint else None
 
     @override
-    def copy(
+    def copy(  # type: ignore
         self,
         *,
         api_key: str | None = None,
@@ -582,7 +683,7 @@ class AsyncAzureOpenAI(BaseAzureClient[httpx.AsyncClient, AsyncStream[Any]], Asy
             },
         )
 
-    with_options = copy
+    with_options = copy  # type: ignore
 
     async def _get_azure_ad_token(self) -> str | None:
         if self._azure_ad_token is not None:
