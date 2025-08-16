@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from typing import Union, cast
+from unittest.mock import AsyncMock, MagicMock, patch
 from typing_extensions import Literal, Protocol
 
 import httpx
@@ -10,10 +11,11 @@ from respx import MockRouter
 
 from openai._utils import SensitiveHeadersFilter, is_dict
 from openai._models import FinalRequestOptions
-from openai.lib.azure import AzureOpenAI, AsyncAzureOpenAI
+from openai.lib.azure import AzureAuth, AzureOpenAI, AsyncAzureAuth, AsyncAzureOpenAI
 
 Client = Union[AzureOpenAI, AsyncAzureOpenAI]
 
+mock_credential = MagicMock()
 
 sync_client = AzureOpenAI(
     api_version="2023-07-01",
@@ -802,3 +804,121 @@ def test_client_sets_base_url(client: Client) -> None:
         )
     )
     assert req.url == "https://example-resource.azure.openai.com/openai/models?api-version=2024-02-01"
+
+
+class TestAzureAuth:
+    """Test cases for the AzureAuth class."""
+
+    def test_init_with_token_provider(self) -> None:
+        def token_provider() -> str:
+            return "test-token-123"
+
+        auth = AzureAuth(token_provider=token_provider)
+        assert auth.token_provider is token_provider
+        assert auth.credential is None
+        assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
+
+    def test_init_with_credential(self) -> None:
+        auth = AzureAuth(credential=mock_credential)
+        assert auth.credential is mock_credential
+        assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
+
+    def test_init_with_custom_scopes(self) -> None:
+        custom_scopes = ["https://custom.scope/.default"]
+
+        auth = AzureAuth(credential=mock_credential, scopes=custom_scopes)
+        assert auth.scopes == custom_scopes
+
+    def test_init_mutually_exclusive_raises_error(self) -> None:
+        def token_provider() -> str:
+            return "test-token-123"
+
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            AzureAuth(token_provider=token_provider, credential=mock_credential)  # type: ignore[misc]
+
+    def test_init_with_no_params_raises_error(self) -> None:
+        with pytest.raises(ValueError, match="One of `token_provider` or `credential` must be provided"):
+            AzureAuth()  # type: ignore[misc]
+
+    def test_get_token_with_token_provider(self) -> None:
+        expected_token = "test-token-456"
+
+        def token_provider() -> str:
+            return expected_token
+
+        auth = AzureAuth(token_provider=token_provider)
+        token = auth.get_token()
+        assert token == expected_token
+
+    def test_get_token_with_credential(self) -> None:
+        with patch("azure.identity.get_bearer_token_provider") as mock_provider:
+            mock_token_provider = MagicMock()
+            mock_token_provider.return_value = "azure-token-789"
+            mock_provider.return_value = mock_token_provider
+
+            auth = AzureAuth(credential=mock_credential)
+            token = auth.get_token()
+
+            assert token == "azure-token-789"
+            mock_provider.assert_called_once_with(mock_credential, *auth.scopes)
+            mock_token_provider.assert_called_once()
+
+
+class TestAsyncAzureAuth:
+    """Test cases for the AsyncAzureAuth class."""
+
+    def test_init_with_token_provider(self) -> None:
+        async def async_token_provider() -> str:
+            return "async-test-token-123"
+
+        auth = AsyncAzureAuth(token_provider=async_token_provider)
+        assert auth.token_provider is async_token_provider
+        assert auth.credential is None
+        assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
+
+    def test_init_with_credential(self) -> None:
+        auth = AsyncAzureAuth(credential=mock_credential)
+        assert auth.credential is mock_credential
+        assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
+
+    def test_init_with_custom_scopes(self) -> None:
+        custom_scopes = ["https://custom.scope/.default"]
+
+        auth = AsyncAzureAuth(credential=mock_credential, scopes=custom_scopes)
+        assert auth.scopes == custom_scopes
+
+    def test_init_mutually_exclusive_raises_error(self) -> None:
+        async def async_token_provider() -> str:
+            return "async-test-token-123"
+
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            AsyncAzureAuth(token_provider=async_token_provider, credential=mock_credential)  # type: ignore[misc]
+
+    def test_init_with_no_params_raises_error(self) -> None:
+        with pytest.raises(ValueError, match="One of `token_provider` or `credential` must be provided"):
+            AsyncAzureAuth()  # type: ignore[misc]
+
+    @pytest.mark.asyncio
+    async def test_get_token_with_token_provider(self) -> None:
+        expected_token = "async-test-token-456"
+
+        async def async_token_provider() -> str:
+            return expected_token
+
+        auth = AsyncAzureAuth(token_provider=async_token_provider)
+        token = await auth.get_token()
+        assert token == expected_token
+
+    @pytest.mark.asyncio
+    async def test_get_token_with_credential(self) -> None:
+        with patch("azure.identity.aio.get_bearer_token_provider") as mock_provider:
+            mock_token_provider = AsyncMock()
+            mock_token_provider.return_value = "async-azure-token-789"
+            mock_provider.return_value = mock_token_provider
+
+            auth = AsyncAzureAuth(credential=mock_credential)
+            token = await auth.get_token()
+
+            assert token == "async-azure-token-789"
+            mock_provider.assert_called_once_with(mock_credential, *auth.scopes)
+            mock_token_provider.assert_awaited_once()

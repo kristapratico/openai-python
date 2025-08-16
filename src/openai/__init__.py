@@ -7,7 +7,7 @@ import typing as _t
 from typing_extensions import override
 
 from . import types
-from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, Transport, ProxiesTypes
+from ._types import NOT_GIVEN, Omit, NoneType, NotGiven, TokenAuth, Transport, ProxiesTypes
 from ._utils import file_from_path
 from ._client import Client, OpenAI, Stream, Timeout, Transport, AsyncClient, AsyncOpenAI, AsyncStream, RequestOptions
 from ._models import BaseModel
@@ -87,7 +87,12 @@ if not _t.TYPE_CHECKING:
 
 from .lib import azure as _azure, pydantic_function_tool as pydantic_function_tool
 from .version import VERSION as VERSION
-from .lib.azure import AzureOpenAI as AzureOpenAI, AsyncAzureOpenAI as AsyncAzureOpenAI
+from .lib.azure import (
+    AzureAuth as AzureAuth,
+    AzureOpenAI as AzureOpenAI,
+    AsyncAzureAuth as AsyncAzureAuth,
+    AsyncAzureOpenAI as AsyncAzureOpenAI,
+)
 from .lib._old_api import *
 from .lib.streaming import (
     AssistantEventHandler as AssistantEventHandler,
@@ -118,6 +123,8 @@ import httpx as _httpx
 from ._base_client import DEFAULT_TIMEOUT, DEFAULT_MAX_RETRIES
 
 api_key: str | None = None
+
+auth: TokenAuth | None = None
 
 organization: str | None = None
 
@@ -164,6 +171,17 @@ class _ModuleClient(OpenAI):
         global api_key
 
         api_key = value
+
+    @property  # type: ignore
+    @override
+    def auth(self) -> TokenAuth | None:
+        return auth
+
+    @auth.setter  # type: ignore
+    def auth(self, value: TokenAuth | None) -> None:  # type: ignore
+        global auth
+
+        auth = value
 
     @property  # type: ignore
     @override
@@ -348,6 +366,7 @@ def _load_client() -> OpenAI:  # type: ignore[reportUnusedFunction]
 
         _client = _ModuleClient(
             api_key=api_key,
+            auth=auth,
             organization=organization,
             project=project,
             webhook_secret=webhook_secret,
