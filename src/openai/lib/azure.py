@@ -74,6 +74,18 @@ class AzureAuth:
             raise ValueError("The `token_provider` and `credential` arguments are mutually exclusive.")
         if token_provider is None and credential is None:
             raise ValueError("One of `token_provider` or `credential` must be provided to AzureAuth.")
+        if isinstance(scopes, str):  # type: ignore[unreachable]
+            raise TypeError("`scopes` must be a list of strings, not a single string.")
+
+        if credential is not None:
+            try:
+                from azure.identity import get_bearer_token_provider
+            except ImportError as err:
+                raise ImportError(
+                    "azure-identity library is not installed. Please install it to use AzureAuth."
+                ) from err
+            token_provider = get_bearer_token_provider(credential, *scopes)
+
         self.token_provider = token_provider
         self.credential = credential
         self.scopes = scopes
@@ -81,17 +93,6 @@ class AzureAuth:
     def get_token(self) -> str:
         if self.token_provider is not None:
             token = self.token_provider()
-            return token
-
-        if self.credential is not None:
-            try:
-                from azure.identity import get_bearer_token_provider
-            except ImportError as err:
-                raise ImportError(
-                    "azure-identity library is not installed. Please install it to use AzureAuth."
-                ) from err
-            token_provider = get_bearer_token_provider(self.credential, *self.scopes)
-            token = token_provider()
             return token
 
         raise ValueError("Unexpected values provided to AzureAuth. Unable to get token.")
@@ -120,6 +121,18 @@ class AsyncAzureAuth:
             raise ValueError("The `token_provider` and `credential` arguments are mutually exclusive.")
         if token_provider is None and credential is None:
             raise ValueError("One of `token_provider` or `credential` must be provided to AsyncAzureAuth.")
+        if isinstance(scopes, str):  # type: ignore[unreachable]
+            raise TypeError("`scopes` must be a list of strings, not a single string.")
+
+        if credential is not None:
+            try:
+                from azure.identity.aio import get_bearer_token_provider
+            except ImportError as err:
+                raise ImportError(
+                    "azure-identity library is not installed. Please install it to use AsyncAzureAuth."
+                ) from err
+            token_provider = get_bearer_token_provider(credential, *scopes)
+
         self.token_provider = token_provider
         self.credential = credential
         self.scopes = scopes
@@ -127,17 +140,6 @@ class AsyncAzureAuth:
     async def get_token(self) -> str:
         if self.token_provider is not None:
             token = await self.token_provider()
-            return token
-
-        if self.credential is not None:
-            try:
-                from azure.identity.aio import get_bearer_token_provider
-            except ImportError as err:
-                raise ImportError(
-                    "azure-identity library is not installed. Please install it to use AsyncAzureAuth."
-                ) from err
-            token_provider = get_bearer_token_provider(self.credential, *self.scopes)
-            token = await token_provider()
             return token
 
         raise ValueError("Unexpected values provided to AsyncAzureAuth. Unable to get token.")

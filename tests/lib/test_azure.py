@@ -821,7 +821,6 @@ class TestAzureAuth:
     def test_init_with_credential(self) -> None:
         auth = AzureAuth(credential=mock_credential)
         assert auth.credential is mock_credential
-        assert auth.token_provider is None
         assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
 
     def test_init_with_custom_scopes(self) -> None:
@@ -852,13 +851,12 @@ class TestAzureAuth:
         assert token == expected_token
 
     def test_get_token_with_credential(self) -> None:
-        auth = AzureAuth(credential=mock_credential)
-
         with patch("azure.identity.get_bearer_token_provider") as mock_provider:
             mock_token_provider = MagicMock()
             mock_token_provider.return_value = "azure-token-789"
             mock_provider.return_value = mock_token_provider
 
+            auth = AzureAuth(credential=mock_credential)
             token = auth.get_token()
 
             assert token == "azure-token-789"
@@ -881,7 +879,6 @@ class TestAsyncAzureAuth:
     def test_init_with_credential(self) -> None:
         auth = AsyncAzureAuth(credential=mock_credential)
         assert auth.credential is mock_credential
-        assert auth.token_provider is None
         assert auth.scopes == ["https://cognitiveservices.azure.com/.default"]
 
     def test_init_with_custom_scopes(self) -> None:
@@ -914,13 +911,12 @@ class TestAsyncAzureAuth:
 
     @pytest.mark.asyncio
     async def test_get_token_with_credential(self) -> None:
-        auth = AsyncAzureAuth(credential=mock_credential)
-
         with patch("azure.identity.aio.get_bearer_token_provider") as mock_provider:
             mock_token_provider = AsyncMock()
             mock_token_provider.return_value = "async-azure-token-789"
             mock_provider.return_value = mock_token_provider
 
+            auth = AsyncAzureAuth(credential=mock_credential)
             token = await auth.get_token()
 
             assert token == "async-azure-token-789"
