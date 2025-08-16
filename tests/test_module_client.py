@@ -98,7 +98,7 @@ def test_http_client_option() -> None:
     assert openai.completions._client._client is new_client
 
 
-def test_auth_provider_option() -> None:
+def test_auth_option() -> None:
     assert openai.auth is None
     assert openai.completions._client.auth is None
 
@@ -135,7 +135,7 @@ def test_only_api_key_results_in_openai_api() -> None:
         assert type(openai.completions._client).__name__ == "_ModuleClient"
 
 
-def test_only_auth_provider_in_openai_api() -> None:
+def test_only_auth_in_openai_api() -> None:
     with fresh_env():
         openai.api_type = None
         openai.api_key = None
@@ -144,7 +144,7 @@ def test_only_auth_provider_in_openai_api() -> None:
         assert type(openai.completions._client).__name__ == "_ModuleClient"
 
 
-def test_both_api_key_and_auth_provider_in_openai_api() -> None:
+def test_both_api_key_and_auth_in_openai_api() -> None:
     with fresh_env():
         openai.api_key = "example API key"
         openai.auth = AzureAuth(token_provider=lambda: "foo")
